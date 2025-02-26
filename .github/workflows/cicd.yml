@@ -1,0 +1,32 @@
+name: dbt Main Deployment
+
+on:
+  push:
+    branches:
+      - main  # Runs only on pushes to the main branch
+
+jobs:
+  dbt-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install dbt and dependencies
+        run: |
+          pip install dbt-core dbt-snowflake
+
+      - name: Set DBT_PROFILES_DIR
+        run: echo "DBT_PROFILES_DIR=$GITHUB_WORKSPACE/profiles" >> $GITHUB_ENV
+
+      - name: Run dbt debug
+        run: dbt debug
+
+      - name: Run dbt build
+        run: dbt build --target prod
